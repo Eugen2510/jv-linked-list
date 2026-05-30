@@ -64,18 +64,23 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     public T remove(int index) {
         checkIndex(index);
         T value;
+        if (index == 0 && size == 1) {
+            value = head.value;
+            unlinkLastNode();
+            return value;
+        }
         if (index == 0) {
             value = head.value;
-            removeFromHead();
+            unlinkFromHead();
             return value;
         }
         if (index == size - 1) {
             value = tail.value;
-            removeFromTail();
+            unlinkFromTail();
             return value;
         }
         Node<T> currentNode = searchNodeByIndex(index);
-        removeNode(currentNode);
+        unlink(currentNode);
         return currentNode.value;
     }
 
@@ -85,15 +90,19 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         if (currentNode == null) {
             return false;
         }
+        if (currentNode == head && currentNode == tail) {
+            unlinkLastNode();
+            return true;
+        }
         if (currentNode == head) {
-            removeFromHead();
+            unlinkFromHead();
             return true;
         }
         if (currentNode == tail) {
-            removeFromTail();
+            unlinkFromTail();
             return true;
         }
-        removeNode(currentNode);
+        unlink(currentNode);
         return true;
     }
 
@@ -137,13 +146,13 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     }
 
     private Node<T> searchNodeByIndex(int index) {
-        if (index <= size/2) {
+        if (index <= size / 2) {
             return searchNodeFromHead(index);
         }
         return searchNodeFromTail(index);
     }
 
-    private void checkIndex (int index) {
+    private void checkIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
         }
@@ -160,22 +169,27 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         return null;
     }
 
-    private void removeFromHead() {
+    private void unlinkFromHead() {
         head.prev = null;
         head = head.next;
         size--;
     }
 
-    private void removeFromTail() {
+    private void unlinkFromTail() {
         tail.prev.next = null;
         tail = tail.prev;
         size--;
     }
 
-    private void removeNode(Node<T> currentNode) {
+    private void unlink(Node<T> currentNode) {
         currentNode.next.prev = currentNode.prev;
         currentNode.prev.next = currentNode.next;
         size--;
+    }
+
+    private void unlinkLastNode() {
+        head = tail = null;
+        size = 0;
     }
 
     private static class Node<T> {
